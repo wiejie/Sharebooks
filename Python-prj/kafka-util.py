@@ -11,7 +11,20 @@ import shutil
 from pathlib import Path
 
 ############################################################################################
-# Declare variables
+# Declare global variables
+############################################################################################
+
+ACTION = ''
+SOURCE = ''
+KAFKAHOME = ''
+NUMBERCOUNT = ''
+NUMBERCOUNTZOO = ''
+TOPICNAME = ''
+SERVERNAMEPORT = ''
+KPORTNUMBER = ''
+ZPORTNUMBER = ''
+REPFACTOR = ''
+
 SVR_PROP_TEMPLATE="server.properties-template"
 SVR_NAME="server"
 SVR_PROP=".properties"
@@ -25,6 +38,8 @@ START_KAFKA_SH_TEMPLATE="start-kafka.sh"
 START_ZOOKEEPER_SH_TEMPLATE="start-zookeeper.sh"
 STOP_KAFKA_SH_TEMPLATE="stop-kafka.sh"
 
+############################################################################################
+# Usage or Help function
 ############################################################################################
 def usage():
       print ("Usage: " + sys.argv[0] + " -h " )
@@ -46,16 +61,31 @@ def usage():
       print ("  -S      : Create Start/Stop kafka scripts.")
       print ("  -L      : List all kafka topics.")
 
+############################################################################################
+# functions
+############################################################################################
+def search_and_replace(file_name, search_text, replace_text ):
+    with open(file_name) as f:
+        new_text=f.read().replace( search_text, replace_text )
 
-def installKafa(source, destination):
+    with open(file_name, "w") as f:
+        f.write(new_text)
+
+def get_multiple_zookeeper_portnumber(n, zoo_portnumber):
+
+    zoo_client_port = ''
+    for i in range(int(n)):
+        port_number = int(zoo_portnumber) + i
+        zoo_client_port += 'localhost:' + str(port_number) + ','
+
+    return  zoo_client_port[:-1]
+
+
+def install_kafka(source, destination):
 
     print ("Install..... " + source)
     if not os.path.exists(destination):
         os.makedirs(destination)
-
-    # with t.open(source, 'r') as t:
-    #     t.extractall(destination)
-    # print(os.listdir(destination))
 
     retcode = subprocess.call(['tar', '-xvzf', source, '-C', destination, '--strip-components=1' ])
     if retcode == 0:
@@ -64,17 +94,16 @@ def installKafa(source, destination):
     else:
         raise IOError('tar exited with code %d' % retcode)
 
-def createZookeeperProperty(NUMBERCOUNTZOO, ZPORTNUMBER: object, KAFKAHOME):
+
+def create_zookeeper_properties(NUMBERCOUNTZOO, ZPORTNUMBER: object, KAFKAHOME):
 
     print("CreateZookeeperProperty..... ")
 
-#    for NUM in range(NUMBERCOUNTZOO):
     for NUM in range(int(NUMBERCOUNTZOO)):
 
         KAFKA_BROKER_ID = NUM
         PORTNUMBER = int(ZPORTNUMBER) + NUM
 
-        #echo "Creating zookeeper-$NUM.properties file... "
         print( 'Creating zookeeper-{0}.properties file... '.format(PORTNUMBER))
 
         shutil.copy(ZOO_PROP_TEMPLATE, KAFKAHOME + '/config/' + ZOO_NAME + '-' + str(PORTNUMBER) + ZOO_PROP )
@@ -87,34 +116,51 @@ def createZookeeperProperty(NUMBERCOUNTZOO, ZPORTNUMBER: object, KAFKAHOME):
         FileName = (base_path / ZPROPPFILE).resolve()
 
         # Search ZOOKEEPER_DATADIR and replace with Environment Variable
-        with open(FileName) as f:
-            newText=f.read().replace('ZOOKEEPER_DATADIR', ZOOKEEPER_DATADIR)
-
-        with open(FileName, "w") as f:
-            f.write(newText)
+        search_and_replace(FileName, 'ZOOKEEPER_DATADIR', ZOOKEEPER_DATADIR )
 
         # Search ZOOKEEPER_CLIENTPORT and replace with Environment Variable
-        with open(FileName) as f:
-            newText=f.read().replace('ZOOKEEPER_CLIENTPORT', ZOOKEEPER_CLIENTPORT)
-
-        with open(FileName, "w") as f:
-            f.write(newText)
+        search_and_replace(FileName, 'ZOOKEEPER_CLIENTPORT', ZOOKEEPER_CLIENTPORT)
 
 
+def create_node_server_property(NUMBERCOUNT, KPORTNUMBER, NUMBERCOUNTZOO, ZPORTNUMBER, KAFKAHOME ):
+
+    print("Begin create Node server.properties using {0} $SVR_PROP_TEMPLATE in {1} $KAFKAHOME/config directory".format(SVR_PROP_TEMPLATE, KAFKAHOME ))
+
+    for NUM in range( int(NUMBERCOUNT) ):
+
+        #Get the kafka port number and increment by NUM
+        PORTNUMBER = int(KPORTNUMBER) + NUM
+
+        print( 'Creating server-{0}.properties file... '.format(PORTNUMBER))
+
+        #cp ./$SVR_PROP_TEMPLATE $KAFKAHOME/config/$SVR_NAME-$NUM$SVR_PROP
+        shutil.copy(SVR_PROP_TEMPLATE, KAFKAHOME + '/config/' + SVR_NAME + '-' + str(PORTNUMBER) + SVR_PROP )
+
+        # Get the server.properties file location
+        KPROPPFILE = KAFKAHOME + '/config/' + SVR_NAME + '-' + str(PORTNUMBER) + SVR_PROP
+        base_path = Path(__file__).parent
+        FileName = (base_path / KPROPPFILE).resolve()
+
+        KAFKA_BROKER_ID = NUM
+        # Search KAFKA_BROKER_ID and replace with environment variable
+        search_and_replace(FileName, 'KAFKA_BROKER_ID', str(KAFKA_BROKER_ID) )
+
+        KAFKA_LISTENERES="PLAINTEXT:localhost:" + str(PORTNUMBER)
+        # Search KAFKA_LISTENERS and replace with environment variable
+        search_and_replace(FileName, 'KAFKA_LISTENERES', KAFKA_LISTENERES )
+
+        KAFKA_LOG_DIRS="/data/kafka-logs-" + str(PORTNUMBER)
+        # Search KAFKA_LOG_DIRS and replace with environment variable
+        search_and_replace(FileName, 'KAFKA_LOG_DIRS', KAFKA_LOG_DIRS )
+
+        KAFKA_ZOOKEEPER_CONNECT =  get_multiple_zookeeper_portnumber(NUMBERCOUNTZOO, ZPORTNUMBER )
+        #Search KAFKA_ZOOKEEPER_CONNECT and replace with environment variable
+        search_and_replace(FileName, 'KAFKA_ZOOKEEPER_CONNECT', KAFKA_ZOOKEEPER_CONNECT )
+
+        print( "End create Node server.properties...")
 
 ############################################################################################################
 def main(argv):
-
-   ACTION = ''
-   SOURCE = ''
-   KAFKAHOME = ''
-   NUMBERCOUNT = ''
-   NUMBERCOUNTZOO = ''
-   TOPICNAME = ''
-   SERVERNAMEPORT = ''
-   KPORTNUMBE = ''
-   ZPORTNUMBER = ''
-   REPFACTOR = ''
 
    try:
     opts, args = getopt.getopt(argv, "s:d:n:z:t:p:q:f:k:hIZBTSL", ["Install", "Zookeeper", "Broker", "Topic", "topicName=", "source=", "directory=", "brookerPortNumber="] )
@@ -135,25 +181,42 @@ def main(argv):
         KAFKAHOME = arg
     elif opt in ("-n", "--numberOfZookeeper"):
         NUMBERCOUNTZOO = arg
-    elif opt in ("-q", "--brokerPortNumber"):
-        ZPORTNUMBER = arg
-    elif opt in ("-p", "--brokerPortNumber"):
+        NUMBERCOUNT = arg
+    elif opt in ("-z", "--zooKeeperCount"):
+        NUMBERCOUNTZOO = arg
+    elif opt in ("-t", "--topicName"):
+        TOPICNAME = arg
+    elif opt in ("-p", "--portNumber"):
+        SERVERNAMEPORT = arg
         KPORTNUMBER = arg
+    elif opt in ("-q", "--zookeeperPortNumber"):
+        ZPORTNUMBER = arg
+    elif opt in ("-f", "--replicateFactor"):
+        REPFACTOR = arg
+
    #...
 
    # Action from command line
-   if ACTION in ("-I", "--Install"):
-       print('ACTION : ', ACTION)
-       print('SOURCE : ', SOURCE)
-       print('KAFKA HOME : ', KAFKAHOME)
-       installKafa(SOURCE, KAFKAHOME)
+   try:
+    if ACTION in ("-I", "--Install"):
+       # SOURCE, KAFKAHOME
+       install_kafka(SOURCE, KAFKAHOME)
+   except NameError:
+       usage()
 
-   if ACTION in ("-Z", "--Zookeeper"):
-       print('ACTION : ', ACTION)
-       print('NUMBERCOUNTZOO : ', NUMBERCOUNTZOO)
-       print('zookeeperPortNumber : ', ZPORTNUMBER)
-       print('KAFKA HOME : ', KAFKAHOME)
-       createZookeeperProperty(NUMBERCOUNTZOO,ZPORTNUMBER,KAFKAHOME)
+   try:
+    if ACTION in ("-Z", "--Zookeeper"):
+       # NUMBERCOUNTZOO, ZPORTNUMBER, KAFKAHOME
+       create_zookeeper_properties(NUMBERCOUNTZOO,ZPORTNUMBER,KAFKAHOME)
+   except NameError:
+       usage()
+
+   try:
+    if ACTION in ("-B", "--brokerKafa"):
+        # NUMBERCOUNT, KPORTNUMBER,  NUMBERCOUNTZOO, ZPORTNUMBER, KAFKAHOME
+        create_node_server_property(NUMBERCOUNT,KPORTNUMBER, NUMBERCOUNTZOO, ZPORTNUMBER, KAFKAHOME )
+   except NameError:
+        usage()
 
 if __name__ == "__main__":
    main(sys.argv[1:])
