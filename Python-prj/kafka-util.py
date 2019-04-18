@@ -10,14 +10,7 @@ import subprocess
 import shutil
 from pathlib import Path
 
-############################################################################################
-# Declare global variables
-############################################################################################
-
-ACTION = ''
-SOURCE = ''
-KAFKAHOME = ''
-NUMBERCOUNT = ''
+############################################################################################ # Declare global variables ############################################################################################ ACTION = '' SOURCE = '' KAFKAHOME = '' NUMBERCOUNT = ''
 NUMBERCOUNTZOO = ''
 TOPICNAME = ''
 SERVERNAMEPORT = ''
@@ -37,6 +30,9 @@ START_KAFKA_SERVER_SH_TEMPLATE="start-kafka-server.sh"
 START_KAFKA_SH_TEMPLATE="start-kafka.sh"
 START_ZOOKEEPER_SH_TEMPLATE="start-zookeeper.sh"
 STOP_KAFKA_SH_TEMPLATE="stop-kafka.sh"
+
+# Use lambda functint to create multiple zookeeper portnumber
+zookeeper_ports = lambda n, p : ','.join( [ 'localhost'+str(p+x) for x in range(n)] )
 
 ############################################################################################
 # Usage or Help function
@@ -153,7 +149,10 @@ def create_node_server_property(NUMBERCOUNT, KPORTNUMBER, NUMBERCOUNTZOO, ZPORTN
         # Search KAFKA_LOG_DIRS and replace with environment variable
         search_and_replace(FileName, 'KAFKA_LOG_DIRS', KAFKA_LOG_DIRS )
 
-        KAFKA_ZOOKEEPER_CONNECT =  get_multiple_zookeeper_portnumber(NUMBERCOUNTZOO, ZPORTNUMBER )
+        KAFKA_ZOOKEEPER_CONNECT = zookeeper_ports(int(NUMBERCOUNTZOO), int(ZPORTNUMBER) )
+
+        #KAFKA_ZOOKEEPER_CONNECT =  get_multiple_zookeeper_portnumber(NUMBERCOUNTZOO, ZPORTNUMBER )
+
         #Search KAFKA_ZOOKEEPER_CONNECT and replace with environment variable
         search_and_replace(FileName, 'KAFKA_ZOOKEEPER_CONNECT', KAFKA_ZOOKEEPER_CONNECT )
 
@@ -214,7 +213,7 @@ def main(argv):
    try:
     if ACTION in ("-B", "--brokerKafa"):
         # NUMBERCOUNT, KPORTNUMBER,  NUMBERCOUNTZOO, ZPORTNUMBER, KAFKAHOME
-        create_node_server_property(NUMBERCOUNT,KPORTNUMBER, NUMBERCOUNTZOO, ZPORTNUMBER, KAFKAHOME )
+        create_node_server_property(NUMBERCOUNT, KPORTNUMBER, NUMBERCOUNTZOO, ZPORTNUMBER, KAFKAHOME )
    except NameError:
         usage()
 
