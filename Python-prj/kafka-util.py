@@ -13,7 +13,13 @@ from pathlib import Path
 import re
 import platform
 
-############################################################################################ # Declare global variables ############################################################################################ ACTION = '' SOURCE = '' KAFKAHOME = '' NUMBERCOUNT = ''
+############################################################################################
+# Declare global variables
+############################################################################################
+ACTION = ''
+SOURCE = ''
+KAFKAHOME = ''
+NUMBERCOUNT = ''
 NUMBERCOUNTZOO = ''
 TOPICNAME = ''
 SERVERNAMEPORT = ''
