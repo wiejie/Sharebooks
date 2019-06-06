@@ -5,7 +5,7 @@ do installation, configuration for multiple zookeeper and multiple kafka in one 
 node. It supports on Linux or Window kafka environment.
 
 
-# How display help #
+# How display usage help of the script #
 From command line type python kafka-util.py -h and return key.
 
 ~~~

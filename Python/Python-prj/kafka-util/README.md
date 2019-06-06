@@ -1,55 +1,50 @@
-# Python scripting programing language  #
+# kafka-util.py #
+
+This kafka-util.py script that can be executed on OS command line or be set up run automatically. It will
+do installation, configuration for multiple zookeeper and multiple kafka in one nod or multiple
+node. It supports on Linux or Window kafka environment.
 
 
-
-
-## Python useful source link ##
-
-*[Python 3.7.3 documentation](https://docs.python.org/3/)*
-
-***
-
-## Python packaging structure review ##
-1. Packages are modules that contain other modules.
-2. Packages are generally implemented as directories containing a special __init__.py file.
-3. The __init__.py file is executed when the package is imported.
-4. Packages can contain sub packages which themselves are implemented with __init__.py files in directories.
-5. The module objects for packages have a __path__ attribute.
+# How display usage help of the script #
+From command line type python kafka-util.py -h and return key.
 
 ~~~
-my_package/
-  |--__init__.py
-  |--a.py
-  |--nested/
-     |-- __init__.py
-     |-- b.py
-     |-- c.py
+Example:
+> python kafka-util.py -h
 
-from ..a import A
-from .b import B
+Usage: kafka-util.py -h
+       kafka-util.py -I -s sourceTarFile -d untarTargetDirectory
+       kafka-util.py -Z -n numberOfZookeeper -q zookeeperPortNumber -d kafkaHomeDirectory
+       kafka-util.py -B -n numberOfBroker -p brokerPortNumber -z numberOfZookeeper -q zookeeperPortNumber -d cofigurationDirectory
+       kafka-util.py -T -t topicName -p serverName:portNumber -f replicationFactor -n numberOfPartition  -d kafkaHomeDirectory
+       kafka-util.py -S -d kafkaHomeDirectory
+       kafka-util.py -L -p zookeeperServer:portNumber -d kafkaHomeDirectory
+       kafka-util.py -P -t topicName -p serverName:portNumber -d kafkaHomeDirectory
+       kafka-util.py -C -t topicName -p serverName:portNumber -d kafkaHomeDirectory
 
+Options:
+  -h      : Display this help message.
+  -I      : Install kafka tar file.
+  -Z      : Create zookeeper server.properties.
+  -B      : Create kafka broker server.
+  -T      : Create kafka topic.
+  -S      : Create Start/Stop kafka scripts.
+  -L      : List all kafka topics.
+  -P      : Produce kafka message.
+  -C      : Consume kafka message.
 
-two dot = parent directory
-one dot = same directory
-~~~
-
-***
-
-## Recommended project structure example ##
-~~~
-
-project_name
-|__ __main__.py
-|__  project_name
-|  |__ __init__.py
-|  |__ more_source.py
-|  |__ subpackage1
-|  |  |__ __init__.py
-|  |
-|  |__ test
-|     |__ __init__.py
-|     |__ test_code.py
-|__ setup.py
 
 ~~~
 
+# How run install the kafka #
+
+From command line type python kafka-util.py -I -s kafka_2.12-2.2.0.tgz -d /app/kafka and
+hit return key.
+
+
+~~~
+Example:
+> python kafka-util.py -I -s kafka_2.12-2.2.0.tgz -d /app/kafka
+>
+
+~~~
