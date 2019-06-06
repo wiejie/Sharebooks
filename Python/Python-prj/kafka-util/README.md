@@ -1,16 +1,18 @@
-# kafka-util.py #
+# kafka-util.py script #
 
 This kafka-util.py script that can be executed on OS command line or be set up run automatically. It will
-do installation, configuration for multiple zookeeper and multiple kafka in one nod or multiple
-node. It supports on Linux or Window kafka environment.
+do installation, configuration for multiple zookeeper and multiple kafka in one node or multiple
+node. It supports run on Linux or Window kafka environment.
 
 
-# How display usage help of the script #
+# How to display usage help menu of the script #
 From command line type python kafka-util.py -h and return key.
 
 ~~~
 Example:
 > python kafka-util.py -h
+or
+> python kafka-util.py --help
 
 Usage: kafka-util.py -h
        kafka-util.py -I -s sourceTarFile -d untarTargetDirectory
@@ -33,14 +35,13 @@ Options:
   -P      : Produce kafka message.
   -C      : Consume kafka message.
 
-
+---
 ~~~
 
-# How run install the kafka #
+# How to install kafka from the script #
 
-From command line type python kafka-util.py -I -s kafka_2.12-2.2.0.tgz -d /app/kafka and
+From command line type python kafka-util.py -I -s kafka_2.12-2.2.0.tgz -d ./app/kafka and
 hit return key.
-
 
 ~~~
 Example:
@@ -48,3 +49,26 @@ Example:
 >
 
 ~~~
+---
+
+# How to create zookeeper server properties configuration from the script #
+
+To run the script with -Z is for creating zookeeper properties configuration file.
+~~~
+Example:
+> python ./kafka-util.py -Z -n 1 -q 2181 -d /app/kafka
+>
+~~~
+
+---
+# How to create broker properties configuration from the script #
+
+To run the script with -B is for create kafka broker properites onfiguration file.
+Example:
+> python ./kafka-util.py -B -n 1 -p 9093 -z 1 -q 2181 -d /app/kafka
+>
+~~~
+
+---
+
+

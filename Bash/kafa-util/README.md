@@ -1,12 +1,12 @@
 # kafka-util.sh #
 
 This bash kafka-util.sh script that can be executed on OS command line or be set up run automatically. It will
-do installation, configuration for multiple zookeeper and multiple kafka in one nod or multiple
-node. It supports on Linux or Window kafka environment.
+do installation, configuration for multiple zookeeper and multiple kafka in one node or multiple
+node. It supports run on Linux or Window kafka environment.
 
 
-# How display usage help of the script #
-From command line type python kafka-util.py -h and return key.
+# How to display usage help menu of the script #
+From command line type kafka-util.sh -h and return key.
 
 ~~~
 Example:
